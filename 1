@@ -1,0 +1,43 @@
+#include <iostream>
+#include <cmath>
+#include <functional>
+
+// Квадратура интерполяционного типа при p(x)=1, n=3 (4 узла)
+// Равномерные узлы на [a, b]
+double quadrature_interpolatory(double a, double b,
+                                const std::function<double(double)>& f) {
+    // Узлы
+    double x[4];
+    for (int i = 0; i < 4; ++i) {
+        x[i] = a + (b - a) * i / 3.0; // i = 0,1,2,3
+    }
+
+    // Коэффициенты для формулы 3/8
+    double A[4] = {1.0 / 8.0, 3.0 / 8.0, 3.0 / 8.0, 1.0 / 8.0};
+
+    double result = 0.0;
+    for (int i = 0; i < 4; ++i) {
+        result += A[i] * f(x[i]);
+    }
+    result *= (b - a); // т.к. коэффициенты даны для [0,1], масштабируем
+
+    return result;
+}
+
+int main() {
+    // Пример: интеграл от 0 до 1 функции exp(x)
+    auto f = [](double x) { return std::exp(x); };
+
+    double a = 0.0, b = 1.0;
+
+    double integral = quadrature_interpolatory(a, b, f);
+
+    // Точное значение: exp(1) - exp(0) = e - 1
+    double exact = std::exp(1.0) - 1.0;
+
+    std::cout << "Приближенное значение: " << integral << std::endl;
+    std::cout << "Точное значение:       " << exact << std::endl;
+    std::cout << "Ошибка:                " << std::fabs(integral - exact) << std::endl;
+
+    return 0;
+}
